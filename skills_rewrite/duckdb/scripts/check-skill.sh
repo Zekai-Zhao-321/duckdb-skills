@@ -38,16 +38,33 @@ words=$(wc -w < SKILL.md)
 [ -f README.md ] && note FAIL "README.md inside the skill folder" || note OK "no README.md inside the skill"
 
 echo "docs/"
-pages=$(find docs -name '*.md' ! -name 'INDEX.md' ! -name 'SOURCE.md' 2>/dev/null | wc -l)
+pages=$(find docs -name '*.md' ! -name 'TOC.md' ! -name 'SOURCE.md' 2>/dev/null | wc -l)
 [ "$pages" -gt 100 ] && note OK "$pages documentation pages" || note FAIL "only $pages pages — run scripts/sync-docs.sh"
-for f in docs/INDEX.md docs/SOURCE.md docs/functions.json; do
+for f in docs/TOC.md docs/SOURCE.md docs/functions.json; do
   [ -f "$f" ] && note OK "$f" || note FAIL "$f missing"
 done
 
-indexed=$(grep -c '^- `' docs/INDEX.md 2>/dev/null || echo 0)
+# grep -c prints 0 and exits 1 on no match, so no `|| echo 0` fallback here.
+indexed=$(grep -c '^- `' docs/TOC.md 2>/dev/null); indexed=${indexed:-0}
 [ "$indexed" -ge "$pages" ] \
-  && note OK "INDEX.md covers $indexed entries" \
-  || note FAIL "INDEX.md has $indexed entries for $pages pages — run scripts/build-docs-index.sh"
+  && note OK "TOC.md covers $indexed entries" \
+  || note FAIL "TOC.md has $indexed entries for $pages pages — run scripts/build-docs-index.sh"
+
+functions=$(grep -c '{"name":' docs/functions.json 2>/dev/null); functions=${functions:-0}
+[ "$functions" -gt 500 ] \
+  && note OK "functions.json lists $functions function overloads" \
+  || note FAIL "functions.json lists $functions functions — run scripts/build-functions-catalog.sh"
+
+echo "filenames"
+# A case-insensitive filesystem (macOS, Windows) silently keeps one of two paths that
+# differ only by case, so check what git tracks as well as what is on disk.
+collisions="$({ git ls-files . 2>/dev/null; find . -type f | sed 's|^\./||'; } | sort -u \
+  | tr '[:upper:]' '[:lower:]' | sort | uniq -d)"
+if [ -z "$collisions" ]; then
+  note OK "no paths that differ only by case"
+else
+  while read -r p; do note FAIL "case collision: $p"; done <<< "$collisions"
+fi
 
 echo "links"
 missing=0

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Refresh docs/ from the upstream DuckDB documentation, then rebuild docs/INDEX.md.
+# Refresh docs/ from the upstream DuckDB documentation, then rebuild docs/TOC.md and
+# docs/functions.json (the catalog comes from the installed duckdb CLI).
 #
 #   scripts/sync-docs.sh            # track docs/current (the default)
 #   scripts/sync-docs.sh lts        # track the LTS docs instead
@@ -10,6 +11,13 @@ set -euo pipefail
 CHANNEL="${1:-current}"
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DOCS_DIR="$SKILL_DIR/docs"
+
+# Checked before anything is deleted: docs/functions.json is rebuilt from the CLI.
+command -v duckdb >/dev/null || {
+  echo "duckdb CLI not found — needed to rebuild docs/functions.json" >&2
+  exit 1
+}
+
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
@@ -45,10 +53,12 @@ These pages are an unmodified copy of the DuckDB documentation.
 | Commit | \`$COMMIT\` |
 | Commit date | $COMMIT_DATE |
 | Synced | $(date -u +%Y-%m-%d) |
+| Function catalog | \`functions.json\` from \`duckdb_functions()\`, DuckDB $(duckdb --version) |
 
 Refresh with \`scripts/sync-docs.sh $CHANNEL\`. Do not hand-edit anything in this
 directory — edits are lost on the next sync. Corrections belong upstream.
 META
 
 "$SKILL_DIR/scripts/build-docs-index.sh"
+"$SKILL_DIR/scripts/build-functions-catalog.sh"
 echo "synced docs/$CHANNEL @ $COMMIT ($COMMIT_DATE)"

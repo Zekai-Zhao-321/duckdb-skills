@@ -22,13 +22,14 @@ duckdb/
 │   ├── sessions.md           extensions.md        spatial.md
 │   └── overture-maps.md      searching-docs.md    session-logs.md
 ├── docs/                 # all 442 pages of the official DuckDB documentation
-│   ├── INDEX.md          # generated map of every page, grouped by section
+│   ├── TOC.md            # generated map of every page, grouped by section
 │   ├── SOURCE.md         # upstream commit this copy came from
 │   └── functions.json    # machine-readable catalog of every built-in function
 └── scripts/
-    ├── sync-docs.sh          # refresh docs/ from duckdb/duckdb-web
-    ├── build-docs-index.sh   # regenerate docs/INDEX.md
-    └── check-skill.sh        # validate structure, limits and internal links
+    ├── sync-docs.sh                # refresh docs/ from duckdb/duckdb-web
+    ├── build-docs-index.sh         # regenerate docs/TOC.md
+    ├── build-functions-catalog.sh  # regenerate docs/functions.json from duckdb_functions()
+    └── check-skill.sh              # validate structure, limits and internal links
 ```
 
 ### Progressive disclosure
@@ -38,7 +39,7 @@ duckdb/
 | 1 | `name` and `description` in the front matter | Always |
 | 2 | `SKILL.md` body | When the skill is judged relevant |
 | 3 | `reference/*.md` | When the routing table points at one |
-| 4 | `docs/**` via `docs/INDEX.md` | When a specific page is needed |
+| 4 | `docs/**` via `docs/TOC.md` | When a specific page is needed |
 
 Only levels 1 and 2 cost anything on a task that never touches DuckDB, and level 2 is
 deliberately short. The 5.5 MB of documentation at level 4 costs nothing until a page is
@@ -63,9 +64,13 @@ with:
 duckdb/scripts/sync-docs.sh          # or: sync-docs.sh lts
 ```
 
-That re-clones upstream, replaces `docs/`, records the commit in `docs/SOURCE.md` and
-rebuilds `docs/INDEX.md`. Do not hand-edit anything under `docs/` — edits are lost on the
-next sync.
+That re-clones upstream, replaces `docs/`, records the commit in `docs/SOURCE.md`,
+rebuilds `docs/TOC.md`, and regenerates `docs/functions.json` from the installed `duckdb`
+CLI, so it needs the CLI on `PATH`. Do not hand-edit anything under `docs/` — edits are
+lost on the next sync.
+
+The generated index is `TOC.md`, not `INDEX.md`: upstream ships its own `docs/index.md`,
+and a case-insensitive filesystem (macOS, Windows) keeps only one of the two.
 
 Because `docs/current` tracks the in-development release, a page can describe behaviour
 newer than an installed CLI. The skill says so and tells the agent to check

@@ -106,9 +106,10 @@ on demand, not up front.
 <https://github.com/duckdb/duckdb-web/tree/main/docs/current>. It is the authority for
 this skill: when your memory of DuckDB syntax disagrees with `docs/`, `docs/` wins.
 
-- `docs/INDEX.md` — every page grouped by section with its path. Read this first to
+- `docs/TOC.md` — every page grouped by section with its path. Read this first to
   pick the right page, rather than guessing a filename.
-- `docs/functions.json` — machine-readable catalog of every built-in function.
+- `docs/functions.json` — machine-readable catalog of every built-in function, one row
+  per overload.
 - `docs/SOURCE.md` — which upstream commit this copy came from.
 
 Grep the tree when you do not know which page covers something:

@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
-# Regenerate docs/INDEX.md from the YAML front matter of every page under docs/.
+# Regenerate docs/TOC.md from the YAML front matter of every page under docs/.
+# Not INDEX.md: upstream ships docs/index.md, and a case-insensitive filesystem
+# (macOS, Windows) cannot hold both.
 # Usage: scripts/build-docs-index.sh
 set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DOCS_DIR="$SKILL_DIR/docs"
-OUT="$DOCS_DIR/INDEX.md"
+OUT="$DOCS_DIR/TOC.md"
 
 [ -d "$DOCS_DIR" ] || { echo "no docs/ directory at $DOCS_DIR" >&2; exit 1; }
 
 # Emit "<relative path>\t<title>" for every page, title taken from front matter.
 list_pages() {
-  find "$DOCS_DIR" -name '*.md' ! -name 'INDEX.md' -print0 \
+  find "$DOCS_DIR" -name '*.md' ! -name 'TOC.md' ! -name 'SOURCE.md' -print0 \
   | sort -z \
   | while IFS= read -r -d '' f; do
       title="$(awk '

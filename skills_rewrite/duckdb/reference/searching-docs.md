@@ -6,7 +6,7 @@ signatures and anything added in a recent release.
 
 ## 1. The index
 
-`docs/INDEX.md` lists every page with its path, grouped by section. Read it, pick the
+`docs/TOC.md` lists every page with its path, grouped by section. Read it, pick the
 page, read the page. This is the fastest route when you roughly know the area:
 
 | Question about | Section |
@@ -35,8 +35,10 @@ will bury a SQL answer under language-binding noise.
 
 ## 3. The function catalog
 
-`docs/functions.json` is every built-in function as structured data — queryable, which
-beats grep when you want to search by behaviour rather than by name:
+`docs/functions.json` is every built-in function as structured data, one row per
+overload — queryable, which beats grep when you want to search by behaviour rather than
+by name. It is generated from the CLI version named in `docs/SOURCE.md`, which can be
+older than the docs themselves:
 
 ```bash
 duckdb -c "
